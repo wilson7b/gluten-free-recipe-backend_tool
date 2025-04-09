@@ -1,11 +1,6 @@
-from flask import Flask, request, jsonify
-import openai
-import os
+from openai import OpenAI
 
-app = Flask(__name__)
-
-# Set your OpenAI API key as an environment variable or replace directly
-openai.api_key = os.getenv("OPENAI_API_KEY")
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 @app.route('/generate', methods=['POST'])
 def generate_recipe():
@@ -16,7 +11,7 @@ def generate_recipe():
         return jsonify({"error": "Prompt is required."}), 400
 
     try:
-        response = openai.ChatCompletion.create(
+        response = client.chat.completions.create(
             model="gpt-4",
             messages=[
                 {"role": "system", "content": "You are a friendly gluten-free recipe expert named Katie Wilson."},
@@ -29,6 +24,3 @@ def generate_recipe():
         return jsonify({"recipe": recipe_text})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
