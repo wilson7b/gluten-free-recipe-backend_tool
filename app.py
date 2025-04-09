@@ -22,7 +22,7 @@ def generate_recipe():
 
     try:
         response = client.chat.completions.create(
-            model="gpt-4",
+            model="gpt-3.5-turbo",
             messages=[
                 {"role": "system", "content": "You are a friendly gluten-free recipe expert named Katie Wilson."},
                 {"role": "user", "content": prompt}
