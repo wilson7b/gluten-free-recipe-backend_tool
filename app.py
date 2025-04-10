@@ -1,8 +1,10 @@
 from flask import Flask, request, jsonify
 from openai import OpenAI
+from flask_cors import CORS
 import os
 
 app = Flask(__name__)
+CORS(app)  # Enable CORS for all domains
 
 # Set your OpenAI API key as an environment variable or replace directly
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
@@ -17,7 +19,7 @@ def generate_recipe():
 
     try:
         response = client.chat.completions.create(
-            model="gpt-4",
+            model="gpt-3.5-turbo",
             messages=[
                 {"role": "system", "content": "You are a friendly gluten-free recipe expert named Katie Wilson."},
                 {"role": "user", "content": prompt}
