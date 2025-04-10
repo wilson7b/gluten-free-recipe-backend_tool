@@ -36,6 +36,7 @@ def generate_recipe():
 def generate_image():
     data = request.get_json()
     prompt = data.get('prompt', '')
+    size = data.get('size', '1024x1024')  # Accept optional size from frontend
 
     if not prompt:
         return jsonify({"error": "Prompt is required."}), 400
@@ -44,7 +45,7 @@ def generate_image():
         response = client.images.generate(
             model="dall-e-3",
             prompt=prompt,
-            size="1024x1024",
+            size=size,
             quality="standard",
             n=1
         )
@@ -54,3 +55,4 @@ def generate_image():
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
+
