@@ -2,20 +2,40 @@ from flask import Flask, request, jsonify
 from openai import OpenAI
 from flask_cors import CORS
 import os
+import requests
 
 app = Flask(__name__)
 CORS(app)  # Enable CORS for all domains
 
-# Set your OpenAI API key as an environment variable or replace directly
+# Set your OpenAI API key and hCaptcha secret key as environment variables
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+HCAPTCHA_SECRET = os.getenv("HCAPTCHA_SECRET")
 
 @app.route('/generate', methods=['POST'])
 def generate_recipe():
     data = request.get_json()
     prompt = data.get('prompt', '')
+    hcaptcha_token = data.get('hcaptcha_token', '')
 
     if not prompt:
         return jsonify({"error": "Prompt is required."}), 400
+    if not hcaptcha_token:
+        return jsonify({"error": "hCaptcha token is required."}), 400
+
+    # Verify hCaptcha
+    try:
+        verify_response = requests.post(
+            "https://hcaptcha.com/siteverify",
+            data={
+                'secret': HCAPTCHA_SECRET,
+                'response': hcaptcha_token
+            }
+        )
+        result = verify_response.json()
+        if not result.get("success"):
+            return jsonify({"error": "hCaptcha verification failed."}), 403
+    except Exception as e:
+        return jsonify({"error": f"hCaptcha validation error: {str(e)}"}), 500
 
     try:
         response = client.chat.completions.create(
@@ -55,4 +75,3 @@ def generate_image():
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
-
