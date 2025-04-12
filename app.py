@@ -2,39 +2,20 @@ from flask import Flask, request, jsonify
 from openai import OpenAI
 from flask_cors import CORS
 import os
-import requests
 
 app = Flask(__name__)
-CORS(app)
+CORS(app)  # Enable CORS for all domains
 
+# Set your OpenAI API key as an environment variable or replace directly
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
-TURNSTILE_SECRET = os.getenv("TURNSTILE_SECRET")
 
 @app.route('/generate', methods=['POST'])
 def generate_recipe():
     data = request.get_json()
     prompt = data.get('prompt', '')
-    turnstile_token = data.get('turnstile_token', '')
 
     if not prompt:
         return jsonify({"error": "Prompt is required."}), 400
-    if not turnstile_token:
-        return jsonify({"error": "Turnstile token is required."}), 400
-
-    # Verify Turnstile
-    try:
-        verify_response = requests.post(
-            "https://challenges.cloudflare.com/turnstile/v0/siteverify",
-            data={
-                'secret': TURNSTILE_SECRET,
-                'response': turnstile_token
-            }
-        )
-        result = verify_response.json()
-        if not result.get("success"):
-            return jsonify({"error": "Turnstile verification failed."}), 403
-    except Exception as e:
-        return jsonify({"error": f"Turnstile validation error: {str(e)}"}), 500
 
     try:
         response = client.chat.completions.create(
@@ -55,7 +36,7 @@ def generate_recipe():
 def generate_image():
     data = request.get_json()
     prompt = data.get('prompt', '')
-    size = data.get('size', '1024x1024')
+    size = data.get('size', '1024x1024')  # Accept optional size from frontend
 
     if not prompt:
         return jsonify({"error": "Prompt is required."}), 400
