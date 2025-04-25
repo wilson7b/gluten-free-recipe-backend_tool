@@ -43,7 +43,7 @@ def generate_image():
 
     try:
         response = client.images.generate(
-            model="dall-e-3",
+            model="gpt-image-1",
             prompt=prompt,
             size=size,
             quality="standard",
