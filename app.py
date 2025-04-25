@@ -21,7 +21,7 @@ def generate_recipe():
         response = client.chat.completions.create(
             model="gpt-4",
             messages=[
-                {"role": "system", "content": "You are a friendly gluten-free recipe expert named Katie Wilson."},
+                {"role": "system", "content": "You are a friendly gluten-free recipe expert named Katie."},
                 {"role": "user", "content": prompt}
             ],
             temperature=0.7,
